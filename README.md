@@ -123,12 +123,12 @@ async function interactWithContract() {
     const contractAddress = "YOUR_DEPLOYED_CONTRACT_ADDRESS";
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
     
-    // Example: Verify the n = 42 solution
+    // Example: Verify the n = 3 solution
     const tx = await contract.verifyCubes(
-        -80538738812075974n,
-        80435758145817515n,
-        12602123297335631n,
-        42n
+        569936821221962380720n,
+        -569936821113563493509n,
+        -472715493453327032n,
+        3
     );
     
     // Wait for transaction
