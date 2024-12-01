@@ -27,7 +27,6 @@ The contract provides functionality to verify solutions for the equation x³ + y
 - Solidity Version: ^0.8.0
 - Maximum Safe Value: 38,685,626,227,668,009,036,546,048
 - Maximum k Value: 1000
-- License: MIT
 
 ## Prerequisites
 
