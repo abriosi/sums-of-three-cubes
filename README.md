@@ -1,4 +1,4 @@
-# Sum of Cubes Smart Contract
+# Sum of Three Cubes Smart Contract
 
 This smart contract verifies solutions to the equation x³ + y³ + z³ = k for any k value less than 1001.
 
