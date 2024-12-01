@@ -3,58 +3,77 @@ const hre = require("hardhat");
 async function main() {
   // Get the contract instance
   const SumOfCubes = await hre.ethers.getContractFactory("SumOfCubes");
-  const contractAddress = "0xd58838d197Bb35A0b9D23B3e0114ED7EcC367D06"; // Replace with your deployed contract address
+  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with your deployed contract address
   const sumOfCubes = await SumOfCubes.attach(contractAddress);
 
   // Get initial contract state
   const initialUnsolvedCount = await sumOfCubes.getUnsolvedCount();
+  const initialNonTestUnsolvedCount = await sumOfCubes.getNonTestUnsolvedCount();
   const initialUnsolvedNumbers = await sumOfCubes.getUnsolvedNumbers();
   const initialBalance = await hre.ethers.provider.getBalance(contractAddress);
 
   console.log("\nInitial Contract Status:");
   console.log("Balance:", hre.ethers.formatEther(initialBalance), "ETH");
   console.log("Unsolved numbers:", initialUnsolvedNumbers.map(n => n.toString()).join(", "));
-  console.log("Remaining unsolved:", initialUnsolvedCount.toString());
+  console.log("Total remaining unsolved:", initialUnsolvedCount.toString());
+  console.log("Non-test remaining unsolved:", initialNonTestUnsolvedCount.toString());
 
-  // Try the test solution for n = 3
-  const x = 1n;
-  const y = 1n;
-  const z = 1n;
-  const k = 3n;
+  // Test cases
+  const testCases = [
+    {
+      name: "n = 3 (repeatable test)",
+      x: 1n,
+      y: 1n,
+      z: 1n,
+      k: 3n
+    },
+    {
+      name: "n = 42 (one-time reward test)",
+      x: -80538738812075974n,
+      y: 80435758145817515n,
+      z: 12602123297335631n,
+      k: 42n
+    }
+  ];
 
-  console.log("\nVerifying solution for n = 3...");
-  const tx = await sumOfCubes.verifyCubes(x, y, z, k);
-  const receipt = await tx.wait();
+  // Try each test case
+  for (const test of testCases) {
+    console.log(`\nVerifying solution for ${test.name}...`);
+    const tx = await sumOfCubes.verifyCubes(test.x, test.y, test.z, test.k);
+    const receipt = await tx.wait();
 
-  // Find and parse events
-  for (const log of receipt.logs) {
-    try {
-      const event = sumOfCubes.interface.parseLog(log);
-      if (event.name === "VerificationAttempt") {
-        console.log("\nVerification Result:");
-        console.log("Success:", event.args.result);
-        console.log("Message:", event.args.message);
-      } else if (event.name === "SolutionFound") {
-        console.log("\nSolution Found!");
-        console.log("Number solved:", event.args.k.toString());
-        console.log("Reward:", hre.ethers.formatEther(event.args.reward), "ETH");
-        console.log("Solver:", event.args.solver);
+    // Find and parse events
+    for (const log of receipt.logs) {
+      try {
+        const event = sumOfCubes.interface.parseLog(log);
+        if (event.name === "VerificationAttempt") {
+          console.log("\nVerification Result:");
+          console.log("Success:", event.args.result);
+          console.log("Message:", event.args.message);
+        } else if (event.name === "SolutionFound") {
+          console.log("\nSolution Found!");
+          console.log("Number solved:", event.args.k.toString());
+          console.log("Reward:", hre.ethers.formatEther(event.args.reward), "ETH");
+          console.log("Solver:", event.args.solver);
+        }
+      } catch (e) {
+        // Skip logs that aren't from our contract
+        continue;
       }
-    } catch (e) {
-      // Skip logs that aren't from our contract
-      continue;
     }
   }
 
   // Get updated state
   const newUnsolvedCount = await sumOfCubes.getUnsolvedCount();
+  const newNonTestUnsolvedCount = await sumOfCubes.getNonTestUnsolvedCount();
   const newUnsolvedNumbers = await sumOfCubes.getUnsolvedNumbers();
   const newBalance = await hre.ethers.provider.getBalance(contractAddress);
 
   console.log("\nFinal Contract Status:");
   console.log("Balance:", hre.ethers.formatEther(newBalance), "ETH");
   console.log("Unsolved numbers:", newUnsolvedNumbers.map(n => n.toString()).join(", "));
-  console.log("Remaining unsolved:", newUnsolvedCount.toString());
+  console.log("Total remaining unsolved:", newUnsolvedCount.toString());
+  console.log("Non-test remaining unsolved:", newNonTestUnsolvedCount.toString());
 }
 
 main()

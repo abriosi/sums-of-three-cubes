@@ -7,11 +7,16 @@ contract SumOfCubes {
     // Maximum value for k
     int256 private constant MAX_K = 1001;
 
+    // Add new constant for test numbers
+    int256 private constant TEST_NUMBER_1 = 3;
+    int256 private constant TEST_NUMBER_2 = 42;
+
     // Struct to track unsolved numbers
     struct UnsolvedNumber {
         bool exists;
         bool solved;
         address solver;
+        bool isTestNumber;  // New field
     }
 
     // Mapping to track unsolved numbers
@@ -48,21 +53,23 @@ contract SumOfCubes {
         owner = msg.sender;
         
         // Initialize unsolved numbers
-        int256[] memory numbers = new int256[](8);
-        numbers[0] = 3;   // For testing
-        numbers[1] = 114;
-        numbers[2] = 390;
-        numbers[3] = 627;
-        numbers[4] = 633;
-        numbers[5] = 732;
-        numbers[6] = 921;
-        numbers[7] = 975;
+        int256[] memory numbers = new int256[](9);  // Increased array size
+        numbers[0] = TEST_NUMBER_1;   // For testing, marked as test number
+        numbers[1] = TEST_NUMBER_2;   // Another test number with known solution
+        numbers[2] = 114;
+        numbers[3] = 390;
+        numbers[4] = 627;
+        numbers[5] = 633;
+        numbers[6] = 732;
+        numbers[7] = 921;
+        numbers[8] = 975;
         
         for(uint i = 0; i < numbers.length; i++) {
             unsolvedNumbers[numbers[i]] = UnsolvedNumber({
                 exists: true,
                 solved: false,
-                solver: address(0)
+                solver: address(0),
+                isTestNumber: (numbers[i] == TEST_NUMBER_1)
             });
             unsolvedNumbersList.push(numbers[i]);
         }
@@ -105,18 +112,26 @@ contract SumOfCubes {
         bool result = xCubed + yCubed + zCubed == k;
 
         if (result) {
-            // Calculate reward BEFORE marking as solved
-            // Add 1 to unsolvedCount since the current number isn't marked as solved yet
-            uint256 reward = address(this).balance / (getUnsolvedCount());
-            
-            // Mark as solved and record solver
-            unsolvedNumber.solved = true;
-            unsolvedNumber.solver = msg.sender;
-            
-            // Send reward
-            payable(msg.sender).transfer(reward);
-            
-            emit SolutionFound(k, msg.sender, reward);
+            if (!unsolvedNumber.isTestNumber) {
+                // Calculate reward BEFORE marking as solved
+                // Only count non-test numbers for reward calculation
+                uint256 nonTestUnsolvedCount = getNonTestUnsolvedCount();
+                uint256 reward = nonTestUnsolvedCount > 0 ? 
+                    address(this).balance / nonTestUnsolvedCount : 0;
+                
+                // Mark as solved and record solver
+                unsolvedNumber.solved = true;
+                unsolvedNumber.solver = msg.sender;
+                
+                // Send reward only for non-test numbers
+                if (reward > 0) {
+                    payable(msg.sender).transfer(reward);
+                    emit SolutionFound(k, msg.sender, reward);
+                }
+            } else {
+                // For test numbers, just mark as verified without reward
+                emit SolutionFound(k, msg.sender, 0);
+            }
         }
 
         emit VerificationAttempt(
@@ -156,6 +171,18 @@ contract SumOfCubes {
         }
         
         return unsolved;
+    }
+
+    // New helper function to count unsolved non-test numbers
+    function getNonTestUnsolvedCount() public view returns (uint256) {
+        uint256 count = 0;
+        for(uint i = 0; i < unsolvedNumbersList.length; i++) {
+            int256 number = unsolvedNumbersList[i];
+            if (!unsolvedNumbers[number].solved && !unsolvedNumbers[number].isTestNumber) {
+                count++;
+            }
+        }
+        return count;
     }
 
     // Function to fund the vault

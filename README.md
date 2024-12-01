@@ -6,7 +6,11 @@ This smart contract verifies solutions to the equation x³ + y³ + z³ = k for s
 
 The contract maintains a list of historically unsolved numbers for the equation x³ + y³ + z³ = k. When a valid solution is found for any of these numbers, the solver receives a reward from the contract's vault. The numbers are:
 
-- 3 (included for testing)
+Test numbers:
+- 3 (for basic testing, can be verified multiple times, no rewards)
+- 42 (famous solved case, can be solved once to test reward mechanism)
+
+Unsolved numbers (with rewards):
 - 114
 - 390
 - 627
@@ -19,6 +23,8 @@ The contract maintains a list of historically unsolved numbers for the equation 
 
 - Verification of solutions for specific unsolved numbers
 - Reward system for finding valid solutions
+- Test number (3) that can be verified repeatedly without rewards
+- Known solved number (42) for testing reward mechanism
 - Safe handling of large numbers to prevent overflow
 - Event logging for verification attempts and solutions
 - Maximum safe value protection for cube calculations
@@ -181,9 +187,42 @@ Emitted when the vault receives funding.
 
 The contract maintains a vault of ETH that can be used to reward successful solutions. When a valid solution is submitted:
 
-1. The solver receives a reward equal to: `vault_balance / number_of_unsolved_numbers`
-2. The number is marked as solved and cannot be claimed again
-3. The reward amount is automatically transferred to the solver's address
+1. For regular numbers (including 42):
+   - The solver receives a reward equal to: `vault_balance / number_of_unsolved_numbers`
+   - The number is marked as solved and cannot be claimed again
+   - The reward amount is automatically transferred to the solver's address
+
+2. For the test number (3):
+   - Solutions can be verified multiple times
+   - No rewards are given
+   - Used for testing and educational purposes
+
+## Known Solutions
+
+For testing purposes, here are some known solutions:
+
+### n = 3
+Basic solution:
+```javascript
+x = 1
+y = 1
+z = 1
+```
+
+Alternative solution:
+```javascript
+x = 569936821221962380720
+y = -569936821113563493509
+z = -472715493453327032
+```
+
+### n = 42
+Solution (can be used once to test reward mechanism):
+```javascript
+x = -80538738812075974
+y = 80435758145817515
+z = 12602123297335631
+```
 
 ## Contributing to the Vault
 

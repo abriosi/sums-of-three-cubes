@@ -16,9 +16,13 @@ describe("SumOfCubes", function () {
 
   describe("Constructor", function () {
     it("Should initialize unsolved numbers correctly", async function () {
-      expect(await sumOfCubes.getUnsolvedCount()).to.equal(8);
+      expect(await sumOfCubes.getUnsolvedCount()).to.equal(9);
       const unsolvedNumbers = await sumOfCubes.getUnsolvedNumbers();
-      expect(unsolvedNumbers).to.deep.equal([3n, 114n, 390n, 627n, 633n, 732n, 921n, 975n]);
+      expect(unsolvedNumbers).to.deep.equal([3n, 42n, 114n, 390n, 627n, 633n, 732n, 921n, 975n]);
+    });
+
+    it("Should have correct number of non-test unsolved numbers", async function () {
+      expect(await sumOfCubes.getNonTestUnsolvedCount()).to.equal(8);
     });
   });
 
@@ -122,31 +126,37 @@ describe("SumOfCubes", function () {
         .withArgs(1, 1, 1, 100, false, "This number is not in the unsolved list");
     });
 
-    it("Should verify the famous n = 42 solution but reject it as not in list", async function () {
+    it("Should reward solver and mark number as solved", async function () {
       const x = -80538738812075974n;
       const y = 80435758145817515n;
       const z = 12602123297335631n;
-      const k = 42n;
+      const k = 42n; // Using a a test number that rewards and tests the vault
 
-      await expect(sumOfCubes.verifyCubes(x, y, z, k))
-        .to.emit(sumOfCubes, "VerificationAttempt")
-        .withArgs(x, y, z, k, false, "This number is not in the unsolved list");
+      await expect(sumOfCubes.connect(addr2).verifyCubes(x, y, z, k))
+        .to.emit(sumOfCubes, "SolutionFound")
+        .withArgs(k, addr2.address, ethers.parseEther("0.125")); // 1 ETH / 7 non-test numbers + 1 test number
+
+      const unsolvedNumber = await sumOfCubes.unsolvedNumbers(k);
+      expect(unsolvedNumber.solved).to.be.true;
+      expect(unsolvedNumber.solver).to.equal(addr2.address);
+      expect(await sumOfCubes.getNonTestUnsolvedCount()).to.equal(7);
     });
 
-    it("Should reward solver and mark number as solved", async function () {
+    it("Should allow multiple verifications of test numbers", async function () {
       const x = 1n;
       const y = 1n;
       const z = 1n;
       const k = 3n;
 
+      // First verification
       await expect(sumOfCubes.connect(addr2).verifyCubes(x, y, z, k))
         .to.emit(sumOfCubes, "SolutionFound")
-        .withArgs(k, addr2.address, ethers.parseEther("0.125")); // 1 ETH / 8 unsolved numbers
+        .withArgs(k, addr2.address, 0); // Zero reward for test number
 
-      const unsolvedNumber = await sumOfCubes.unsolvedNumbers(k);
-      expect(unsolvedNumber.solved).to.be.true;
-      expect(unsolvedNumber.solver).to.equal(addr2.address);
-      expect(await sumOfCubes.getUnsolvedCount()).to.equal(7);
+      // Second verification should still work
+      await expect(sumOfCubes.connect(addr2).verifyCubes(x, y, z, k))
+        .to.emit(sumOfCubes, "SolutionFound")
+        .withArgs(k, addr2.address, 0);
     });
   });
 });
