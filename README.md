@@ -19,8 +19,8 @@ The contract provides functionality to verify solutions for the equation x³ + y
 Clone the repository and install dependencies:
 
 ```bash
-git clone <your-repo-url>
-cd <repo-name>
+git clone https://github.com/abriosi/sums-of-three-cubes
+cd sums-of-three-cubes
 npm install
 ```
 
@@ -82,7 +82,7 @@ Verifies if x³ + y³ + z³ = k for a specified k value.
 
 - Solidity Version: ^0.8.0
 - Maximum Safe Value: 38,685,626,227,668,009,036,546,048
-- Maximum k Value: 999
+- Maximum k Value: 1000
 - License: MIT
 
 ## Local Development
