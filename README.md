@@ -132,11 +132,3 @@ The contract can verify historically significant solutions, including:
 
 - n = 42: (-80538738812075974)³ + 80435758145817515³ + 12602123297335631³ = 42
   (Discovered by Booker and Sutherland in 2019)
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
