@@ -9,13 +9,13 @@ async function main() {
   const address = await sumOfCubes.getAddress();
   console.log("SumOfCubes deployed to:", address);
 
-  // Fund the contract with some initial ETH for rewards (0.1 ETH)
+  // Fund the contract with some initial ETH for rewards (0.01 ETH)
   const [deployer] = await hre.ethers.getSigners();
   await deployer.sendTransaction({
     to: address,
-    value: hre.ethers.parseEther("0.1")
+    value: hre.ethers.parseEther("0.01")
   });
-  console.log("Contract funded with 0.1 ETH");
+  console.log("Contract funded with 0.01 ETH");
 
   // Get initial state
   const unsolvedCount = await sumOfCubes.getUnsolvedCount();

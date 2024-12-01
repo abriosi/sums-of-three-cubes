@@ -3,7 +3,7 @@ const hre = require("hardhat");
 async function main() {
   // Get the contract instance
   const SumOfCubes = await hre.ethers.getContractFactory("SumOfCubes");
-  const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"; // Replace with your deployed contract address
+  const contractAddress = "0xd58838d197Bb35A0b9D23B3e0114ED7EcC367D06"; // Replace with your deployed contract address
   const sumOfCubes = await SumOfCubes.attach(contractAddress);
 
   // Get initial contract state
