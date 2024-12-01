@@ -188,3 +188,16 @@ The contract maintains a vault of ETH that can be used to reward successful solu
 ## Contributing to the Vault
 
 Anyone can contribute to the reward vault by sending ETH directly to the contract address. These funds will be used to reward future solutions.
+
+## Historical Context & Further Reading
+
+This problem is part of a classic challenge in number theory that asks whether a given number can be expressed as the sum of three cubes of integers (allowing both positive and negative values). While seemingly simple, it has challenged mathematicians for decades.
+
+Recent notable breakthroughs include:
+- In 2019, Andrew Booker found the first solution for 33 after 65 years of searching
+- Later that year, Booker and Andrew Sutherland solved the famous case of 42, requiring 1.3 million hours of computing time
+- A new solution for 3 was discovered using the massive computing power of the Charity Engine global grid
+
+The seven numbers in this contract (114, 390, 627, 633, 732, 921, and 975) represent the only remaining unsolved cases below 1000. A necessary condition for a number n to be expressible as a sum of three cubes is that it cannot equal 4 or 5 modulo 9.
+
+For more information, see the [Wikipedia article on Sums of Three Cubes](https://en.wikipedia.org/wiki/Sums_of_three_cubes).
