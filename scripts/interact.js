@@ -3,24 +3,58 @@ const hre = require("hardhat");
 async function main() {
   // Get the contract instance
   const SumOfCubes = await hre.ethers.getContractFactory("SumOfCubes");
-  const contractAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3"; // Replace with your deployed contract address
+  const contractAddress = "0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9"; // Replace with your deployed contract address
   const sumOfCubes = await SumOfCubes.attach(contractAddress);
 
-  // Try the famous n = 42 solution
-  const x = -80538738812075974n;
-  const y = 80435758145817515n;
-  const z = 12602123297335631n;
-  const k = 42n;
+  // Get initial contract state
+  const initialUnsolvedCount = await sumOfCubes.getUnsolvedCount();
+  const initialUnsolvedNumbers = await sumOfCubes.getUnsolvedNumbers();
+  const initialBalance = await hre.ethers.provider.getBalance(contractAddress);
 
-  console.log("\nVerifying the famous n = 42 solution...");
-  const tx = await sumOfCubes.verifyCubesWithProvidedK(x, y, z, k);
+  console.log("\nInitial Contract Status:");
+  console.log("Balance:", hre.ethers.formatEther(initialBalance), "ETH");
+  console.log("Unsolved numbers:", initialUnsolvedNumbers.map(n => n.toString()).join(", "));
+  console.log("Remaining unsolved:", initialUnsolvedCount.toString());
+
+  // Try the test solution for n = 3
+  const x = 1n;
+  const y = 1n;
+  const z = 1n;
+  const k = 3n;
+
+  console.log("\nVerifying solution for n = 3...");
+  const tx = await sumOfCubes.verifyCubes(x, y, z, k);
   const receipt = await tx.wait();
 
-  // Find the VerificationAttempt event
-  const event = receipt.logs[0];
-  console.log("Transaction hash:", tx.hash);
-  console.log("Result:", event.args[4]); // true/false
-  console.log("Message:", event.args[5]); // The verification message
+  // Find and parse events
+  for (const log of receipt.logs) {
+    try {
+      const event = sumOfCubes.interface.parseLog(log);
+      if (event.name === "VerificationAttempt") {
+        console.log("\nVerification Result:");
+        console.log("Success:", event.args.result);
+        console.log("Message:", event.args.message);
+      } else if (event.name === "SolutionFound") {
+        console.log("\nSolution Found!");
+        console.log("Number solved:", event.args.k.toString());
+        console.log("Reward:", hre.ethers.formatEther(event.args.reward), "ETH");
+        console.log("Solver:", event.args.solver);
+      }
+    } catch (e) {
+      // Skip logs that aren't from our contract
+      continue;
+    }
+  }
+
+  // Get updated state
+  const newUnsolvedCount = await sumOfCubes.getUnsolvedCount();
+  const newUnsolvedNumbers = await sumOfCubes.getUnsolvedNumbers();
+  const newBalance = await hre.ethers.provider.getBalance(contractAddress);
+
+  console.log("\nFinal Contract Status:");
+  console.log("Balance:", hre.ethers.formatEther(newBalance), "ETH");
+  console.log("Unsolved numbers:", newUnsolvedNumbers.map(n => n.toString()).join(", "));
+  console.log("Remaining unsolved:", newUnsolvedCount.toString());
 }
 
 main()

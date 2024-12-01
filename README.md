@@ -1,31 +1,35 @@
 # Sum of Three Cubes Smart Contract
 
-This smart contract verifies solutions to the equation x³ + y³ + z³ = k for any k value less than 1001.
+This smart contract verifies solutions to the equation x³ + y³ + z³ = k for specific unsolved values of k, with rewards for finding solutions.
 
 ## Overview
 
-The contract provides functionality to verify solutions for the equation x³ + y³ + z³ = k, where k is any non-negative number less than 1001. It includes safety checks for number overflow and input validation.
+The contract maintains a list of historically unsolved numbers for the equation x³ + y³ + z³ = k. When a valid solution is found for any of these numbers, the solver receives a reward from the contract's vault. The numbers are:
 
-## Project Structure
-
-- `contracts/SumOfCubes.sol`: The main smart contract
-- `scripts/deploy.js`: Script to deploy the contract
-- `scripts/interact.js`: Script to interact with the deployed contract
-- `test/SumOfCubes.test.js`: Comprehensive test suite
+- 3 (included for testing)
+- 114
+- 390
+- 627
+- 633
+- 732
+- 921
+- 975
 
 ## Features
 
-- Verification of solutions for any k < 1001
+- Verification of solutions for specific unsolved numbers
+- Reward system for finding valid solutions
 - Safe handling of large numbers to prevent overflow
-- Event logging for verification attempts
+- Event logging for verification attempts and solutions
 - Maximum safe value protection for cube calculations
-- Historical solutions verification (e.g., n = 42 solution by Booker and Sutherland)
+- Vault funding mechanism for rewards
 
 ## Technical Details
 
 - Solidity Version: ^0.8.0
 - Maximum Safe Value: 38,685,626,227,668,009,036,546,048
 - Maximum k Value: 1000
+- Reward Distribution: Equal split of vault balance among remaining unsolved numbers
 
 ## Prerequisites
 
@@ -139,7 +143,19 @@ async function interactWithContract() {
 ```solidity
 function verifyCubes(int256 x, int256 y, int256 z, int256 k) public returns (bool)
 ```
-Verifies if x³ + y³ + z³ = k for a specified k value (must be less than 1001 and non-negative).
+Verifies if x³ + y³ + z³ = k for a specified k value. If the solution is valid and k is in the unsolved list, the solver receives a reward.
+
+### getUnsolvedCount
+```solidity
+function getUnsolvedCount() public view returns (uint256)
+```
+Returns the number of remaining unsolved numbers.
+
+### getUnsolvedNumbers
+```solidity
+function getUnsolvedNumbers() public view returns (int256[] memory)
+```
+Returns an array of all currently unsolved numbers.
 
 ## Events
 
@@ -149,9 +165,26 @@ event VerificationAttempt(int256 x, int256 y, int256 z, int256 k, bool result, s
 ```
 Emitted for each verification attempt with detailed results.
 
-## Notable Solutions
+### SolutionFound
+```solidity
+event SolutionFound(int256 k, address solver, uint256 reward)
+```
+Emitted when a valid solution is found and rewarded.
 
-The contract can verify historically significant solutions, including:
+### VaultFunded
+```solidity
+event VaultFunded(address funder, uint256 amount)
+```
+Emitted when the vault receives funding.
 
-- n = 42: (-80538738812075974)³ + 80435758145817515³ + 12602123297335631³ = 42
-  (Discovered by Booker and Sutherland in 2019)
+## Rewards System
+
+The contract maintains a vault of ETH that can be used to reward successful solutions. When a valid solution is submitted:
+
+1. The solver receives a reward equal to: `vault_balance / number_of_unsolved_numbers`
+2. The number is marked as solved and cannot be claimed again
+3. The reward amount is automatically transferred to the solver's address
+
+## Contributing to the Vault
+
+Anyone can contribute to the reward vault by sending ETH directly to the contract address. These funds will be used to reward future solutions.
