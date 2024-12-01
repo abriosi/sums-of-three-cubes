@@ -4,7 +4,7 @@ This smart contract verifies solutions to the equation x³ + y³ + z³ = k for a
 
 ## Overview
 
-The contract provides functionality to verify solutions for the equation x³ + y³ + z³ = k, where k is any non-negative number less than 1001. It includes safety checks for number overflow and maintains a current k value that can be updated by users.
+The contract provides functionality to verify solutions for the equation x³ + y³ + z³ = k, where k is any non-negative number less than 1001. It includes safety checks for number overflow and input validation.
 
 ## Project Structure
 
@@ -18,7 +18,6 @@ The contract provides functionality to verify solutions for the equation x³ + y
 - Verification of solutions for any k < 1001
 - Safe handling of large numbers to prevent overflow
 - Event logging for verification attempts
-- Configurable k value through setter function
 - Maximum safe value protection for cube calculations
 - Historical solutions verification (e.g., n = 42 solution by Booker and Sutherland)
 
@@ -96,7 +95,7 @@ npx hardhat run scripts/deploy.js --network sepolia
 
 3. Verify contract on Etherscan:
 ```bash
-npx hardhat verify --network sepolia DEPLOYED_CONTRACT_ADDRESS "100"
+npx hardhat verify --network sepolia DEPLOYED_CONTRACT_ADDRESS
 ```
 
 ### Contract Interaction
@@ -121,7 +120,7 @@ async function interactWithContract() {
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
     
     // Example: Verify the n = 42 solution
-    const tx = await contract.verifyCubesWithProvidedK(
+    const tx = await contract.verifyCubes(
         -80538738812075974n,
         80435758145817515n,
         12602123297335631n,
@@ -136,43 +135,13 @@ async function interactWithContract() {
 
 ## Contract Functions
 
-### Constructor
+### verifyCubes
 ```solidity
-constructor(int256 initialK)
+function verifyCubes(int256 x, int256 y, int256 z, int256 k) public returns (bool)
 ```
-Initializes the contract with a starting k value.
-
-### setK
-```solidity
-function setK(int256 newK) public
-```
-Sets a new value for k (must be less than 1001 and non-negative).
-
-### getCurrentK
-```solidity
-function getCurrentK() public view returns (int256)
-```
-Returns the current value of k.
-
-### verifyCubesWithStoredK
-```solidity
-function verifyCubesWithStoredK(int256 x, int256 y, int256 z) public returns (bool)
-```
-Verifies if x³ + y³ + z³ equals the current k value.
-
-### verifyCubesWithProvidedK
-```solidity
-function verifyCubesWithProvidedK(int256 x, int256 y, int256 z, int256 k) public returns (bool)
-```
-Verifies if x³ + y³ + z³ = k for a specified k value.
+Verifies if x³ + y³ + z³ = k for a specified k value (must be less than 1001 and non-negative).
 
 ## Events
-
-### KValueSet
-```solidity
-event KValueSet(int256 k)
-```
-Emitted when a new k value is set.
 
 ### VerificationAttempt
 ```solidity

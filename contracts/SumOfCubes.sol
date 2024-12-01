@@ -7,31 +7,6 @@ contract SumOfCubes {
     // Maximum value for k
     int256 private constant MAX_K = 1001;
 
-    // Add state variable to store k
-    int256 private currentK;
-    
-    // Add event for k updates
-    event KValueSet(int256 k);
-
-    // Add constructor to set initial k
-    constructor(int256 initialK) {
-        require(initialK < MAX_K && initialK >= 0, "k must be less than 1001 and non-negative");
-        currentK = initialK;
-        emit KValueSet(initialK);
-    }
-
-    // Add function to set k
-    function setK(int256 newK) public {
-        require(newK < MAX_K && newK >= 0, "k must be less than 1001 and non-negative");
-        currentK = newK;
-        emit KValueSet(newK);
-    }
-
-    // Add getter for current k
-    function getCurrentK() public view returns (int256) {
-        return currentK;
-    }
-
     // Event to log results for debugging
     event VerificationAttempt(
         int256 x,
@@ -42,12 +17,7 @@ contract SumOfCubes {
         string message
     );
 
-    // Rename the functions to be more specific
-    function verifyCubesWithStoredK(int256 x, int256 y, int256 z) public returns (bool) {
-        return verifyCubesWithProvidedK(x, y, z, currentK);
-    }
-
-    function verifyCubesWithProvidedK(int256 x, int256 y, int256 z, int256 k) public returns (bool) {
+    function verifyCubes(int256 x, int256 y, int256 z, int256 k) public returns (bool) {
         // Check if k is within valid range FIRST
         if (k >= MAX_K || k < 0) {
             emit VerificationAttempt(x, y, z, k, false, "k must be less than 1001 and non-negative");
