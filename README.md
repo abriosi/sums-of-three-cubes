@@ -64,6 +64,7 @@ npx hardhat coverage
 
 ## Deployment
 
+### Local Network
 1. Start a local node:
 ```bash
 npx hardhat node
@@ -77,6 +78,60 @@ npx hardhat run scripts/deploy.js --network localhost
 3. Interact with the deployed contract:
 ```bash
 npx hardhat run scripts/interact.js --network localhost
+```
+
+### Testnet Deployment (e.g., Sepolia)
+
+1. Create `.env` file:
+```plaintext
+PRIVATE_KEY=your_wallet_private_key
+SEPOLIA_RPC_URL=your_sepolia_rpc_url
+ETHERSCAN_API_KEY=your_etherscan_api_key
+```
+
+2. Deploy to Sepolia:
+```bash
+npx hardhat run scripts/deploy.js --network sepolia
+```
+
+3. Verify contract on Etherscan:
+```bash
+npx hardhat verify --network sepolia DEPLOYED_CONTRACT_ADDRESS "100"
+```
+
+### Contract Interaction
+
+1. Through Etherscan:
+   - Go to the contract address on Etherscan
+   - Connect your wallet
+   - Use the "Write Contract" section to call functions
+
+2. Through code:
+```javascript
+const ethers = require('ethers');
+const contractABI = require('./artifacts/contracts/SumOfCubes.sol/SumOfCubes.json').abi;
+
+async function interactWithContract() {
+    // Connect to provider (e.g., MetaMask)
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    
+    // Create contract instance
+    const contractAddress = "YOUR_DEPLOYED_CONTRACT_ADDRESS";
+    const contract = new ethers.Contract(contractAddress, contractABI, signer);
+    
+    // Example: Verify the n = 42 solution
+    const tx = await contract.verifyCubesWithProvidedK(
+        -80538738812075974n,
+        80435758145817515n,
+        12602123297335631n,
+        42n
+    );
+    
+    // Wait for transaction
+    const receipt = await tx.wait();
+    console.log("Transaction:", receipt);
+}
 ```
 
 ## Contract Functions
