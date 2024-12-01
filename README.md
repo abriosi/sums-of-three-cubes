@@ -29,6 +29,16 @@ The contract provides functionality to verify solutions for the equation x³ + y
 - Maximum k Value: 1000
 - License: MIT
 
+## Prerequisites
+
+- Node.js v18.20.0 or higher
+- npm v10.5.0 or higher
+
+You can use nvm (Node Version Manager) to install the correct version:
+```bash
+nvm use 18.20.0
+```
+
 ## Installation
 
 Clone the repository and install dependencies:
